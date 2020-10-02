@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 // MARK: Storyboards
 
@@ -32,4 +33,26 @@ extension NameDescribable {
 
 extension NSObject: NameDescribable {}
 
+// MARK: Download/cache images
 
+extension UIImageView {
+	func loadImage(urlPath: String?, placeHolderImageName: String) {
+		let imagePlaceHolder = UIImage(named: placeHolderImageName)
+		guard let urlP = urlPath else {
+			self.image = imagePlaceHolder
+			return
+		}
+		let processor = DownsamplingImageProcessor(size: self.frame.size)
+		let url = URL(string: urlP)
+		self.kf.indicatorType = .activity
+		self.kf.setImage(
+			with: url,
+			placeholder: imagePlaceHolder,
+			options: [
+				.processor(processor),
+				.scaleFactor(UIScreen.main.scale),
+				.transition(.fade(1.0)),
+				.cacheOriginalImage
+			])
+	}
+}

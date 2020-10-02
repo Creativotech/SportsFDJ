@@ -12,7 +12,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	var window: UIWindow?
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-		guard let _ = (scene as? UIWindowScene) else { return }
+		guard let _ = (scene as? UIWindowScene) else {
+			return
+		}
+		let rootNavigationController = UINavigationController()
+		let viewController = TeamSearchCreator.create()
+		rootNavigationController.setViewControllers([viewController], animated: false)
+		
+		window?.rootViewController = rootNavigationController
 	}
 
 	func sceneDidDisconnect(_ scene: UIScene) {}

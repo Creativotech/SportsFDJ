@@ -9,6 +9,10 @@ import Foundation
 import UIKit
 
 extension TeamSearchViewController: UITableViewDataSource {
+	func numberOfSections(in tableView: UITableView) -> Int {
+		return 1
+	}
+	
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return leagues.count
 	}
@@ -18,18 +22,14 @@ extension TeamSearchViewController: UITableViewDataSource {
 		cell.textLabel?.text = leagues[indexPath.row].name
 		return cell
 	}
-	
-	func numberOfSections(in tableView: UITableView) -> Int {
-		return 1
-	}
 }
 
 extension TeamSearchViewController: UITableViewDelegate {
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		let name = leagues[indexPath.row].name
 		interactor?.getTeams(request: .init(nameLeague: name))
-		searchTeamController.searchBar.text = name
 		searchTeamController.isActive = false
+		searchTeamController.searchBar.text = name
 		tableView.isHidden = true
 	}
 }

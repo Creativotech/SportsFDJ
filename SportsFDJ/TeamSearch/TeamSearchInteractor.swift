@@ -7,10 +7,13 @@
 
 import Foundation
 
+typealias LeaguesRequest = TeamSearchModel.getLeagues.Request
+typealias TeamsRequest = TeamSearchModel.getTeams.Request
+
 protocol TeamSearchBusinessLogic {
 	func getLeagues()
-	func searchLeagues(request: teamSearchModel.getLeagues.Request)
-	func getTeams(request: teamSearchModel.getTeams.Request)
+	func searchLeagues(request: LeaguesRequest)
+	func getTeams(request: TeamsRequest)
 	func setSelectedTeam(at index: Int)
 }
 
@@ -23,7 +26,7 @@ protocol TeamSearchDataStore {
 class TeamSearchInteractor: TeamSearchBusinessLogic, TeamSearchDataStore
 {
 	var presenter: TeamSearchPresentationLogic?
-	private let worker = TeamSearchWorkerAPI()
+	var worker = TeamSearchWorkerAPI()
 	
 	var leagues: [League] = []
 	var teams: [Team] = []
@@ -41,19 +44,19 @@ class TeamSearchInteractor: TeamSearchBusinessLogic, TeamSearchDataStore
 		}
 	}
 	
-	func searchLeagues(request: teamSearchModel.getLeagues.Request) {
+	func searchLeagues(request: LeaguesRequest) {
 		let text = request.searchText.lowercased()
 		let leaguesSearch = leagues.filter { $0.strLeague.lowercased().contains(text) }
-		let response = teamSearchModel.getLeagues.Response(leagues: leaguesSearch)
+		let response = LeaguesResponse(leagues: leaguesSearch)
 		presenter?.showLeagues(response: response)
 	}
 	
-	func getTeams(request: teamSearchModel.getTeams.Request) {
+	func getTeams(request: TeamsRequest) {
 		worker.getTeams(for: request.nameLeague) { [weak self] (result) in
 			guard let self = self else { return }
 			switch result {
 			case .success(let teams):
-				let response = teamSearchModel.getTeams.Response(teams: teams)
+				let response = TeamsResponse(teams: teams)
 				self.teams = teams
 				self.presenter?.showTeams(response: response)
 			case .failure(let error):

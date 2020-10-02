@@ -24,9 +24,10 @@ class TeamSeachRouter: NSObject, TeamSearchRoutingLogic, TeamSearchData
 	// MARK: Routing
 	
 	func showTeamDetail() {
-		guard let team = dataStore?.teamSelected else {
+		guard let selectedTeam = dataStore?.teamSelected else {
 			return
 		}
-		
+		let teamDetailsVC = TeamDetailsCreator.create(team: selectedTeam)
+		viewController?.navigationController?.pushViewController(teamDetailsVC, animated: true)
 	}
 }

@@ -15,8 +15,11 @@ extension TeamSearchViewController: UICollectionViewDataSource {
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-		
-		
+		guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TeamViewCell.typeName, for: indexPath) as? TeamViewCell else {
+			fatalError("\(TeamViewCell.typeName) ERROR")
+		}
+		cell.setup(teams[indexPath.row])
+		return cell
 	}
 	
 	func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -25,17 +28,17 @@ extension TeamSearchViewController: UICollectionViewDataSource {
 }
 
 extension TeamSearchViewController: UICollectionViewDelegate {
-	
 	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-		
+		interactor?.setSelectedTeam(at: indexPath.row)
+		router?.showTeamDetail()
 	}
-	
 }
 
 extension TeamSearchViewController: UICollectionViewDelegateFlowLayout {
-	
 	func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+		let padding: CGFloat =  20
+		let collectionViewSize = collectionView.frame.size.width - padding
 		
+		return CGSize(width: collectionViewSize / 2, height: collectionViewSize / 2)
 	}
-	
 }

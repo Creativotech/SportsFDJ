@@ -8,28 +8,10 @@
 import Foundation
 import UIKit
 
-struct TeamSearchCreator {
-	static func create() -> UIViewController {
-		guard let viewController = UIStoryboard.main.instantiateViewController(withIdentifier: TeamSearchViewController.typeName) as? TeamSearchViewController else {
-			fatalError("\(TeamSearchViewController.typeName) not found")
-		}
-		let interactor = TeamSearchInteractor()
-		let presenter = TeamSearchPresenter()
-		let router = TeamSeachRouter()
-		viewController.interactor = interactor
-		viewController.router = router
-		interactor.presenter = presenter
-		presenter.viewController = viewController
-		router.viewController = viewController
-		router.dataStore = interactor
-		return viewController
-	}
-}
-
 protocol TeamSearchDisplayLogic: class {
-	func showLeagues(_ leagues: [teamSearchModel.getLeagues.ViewModel.League])
-	func showTeams(_ teams: [teamSearchModel.getTeams.ViewModel.Team])
 	func showError(_ error: Error)
+	func showLeagues(_ leagues: [TeamSearchModel.getLeagues.ViewModel.League])
+	func showTeams(_ teams: [TeamSearchModel.getTeams.ViewModel.Team])
 }
 
 class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
@@ -42,14 +24,14 @@ class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
 	var interactor: TeamSearchBusinessLogic?
 	var router: (NSObjectProtocol & TeamSearchRoutingLogic & TeamSearchData)?
 	
-	var leagues: [teamSearchModel.getLeagues.ViewModel.League] = [] {
+	var leagues: [TeamSearchModel.getLeagues.ViewModel.League] = [] {
 		didSet {
 			DispatchQueue.main.async {
 				self.completionTableView.reloadData()
 			}
 		}
 	}
-	var teams: [teamSearchModel.getTeams.ViewModel.Team] = [] {
+	var teams: [TeamSearchModel.getTeams.ViewModel.Team] = [] {
 		didSet {
 			DispatchQueue.main.async {
 				self.teamsCollectionView.reloadData()
@@ -67,16 +49,10 @@ class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
 		interactor?.getLeagues()
 	}
 	
-	private func setupCompletionView() {
-		completionTableView.delegate = self
-		completionTableView.dataSource = self
-		completionTableView.tableFooterView = UIView()
-	}
-	
 	private func setupSearchController() {
 		searchTeamController = {
 			let search = UISearchController(searchResultsController: nil)
-			search.searchBar.placeholder = "Search a soccer league"
+			search.searchBar.placeholder = "Search a league.."
 			search.searchResultsUpdater = self
 			search.obscuresBackgroundDuringPresentation = false
 			search.hidesNavigationBarDuringPresentation = false
@@ -86,6 +62,12 @@ class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
 		definesPresentationContext = true
 	}
 	
+	private func setupCompletionView() {
+		completionTableView.delegate = self
+		completionTableView.dataSource = self
+		completionTableView.tableFooterView = UIView()
+	}
+
 	private func setupCollectionView() {
 		teamsCollectionView.delegate = self
 		teamsCollectionView.dataSource = self
@@ -94,18 +76,18 @@ class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
 	
 	// MARK: Logic
 	
-	func showTeams(_ teams: [TeamList.getTeams.ViewModel.Team]) {
-		self.teams = teams
-	}
-	
-	func showLeagues(_ leagues: [TeamList.getLeagues.ViewModel.League]) {
+	func showLeagues(_ leagues: [TeamSearchModel.getLeagues.ViewModel.League]) {
 		completionTableView.isHidden = leagues.isEmpty
 		self.leagues = leagues
 	}
 	
+	func showTeams(_ teams: [TeamSearchModel.getTeams.ViewModel.Team]) {
+		self.teams = teams
+	}
+	
 	func showError(_ error: Error) {
 		DispatchQueue.main.async {
-			let alert = UIAlertController(title: "An error occured", message: error.localizedDescription, preferredStyle: .alert)
+			let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
 			alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (action) -> Void in
 				alert.dismiss(animated: true, completion: nil)
 			}))
@@ -114,12 +96,11 @@ class TeamSearchViewController: UIViewController, TeamSearchDisplayLogic {
 	}
 }
 
-extension TeamListViewController: UISearchResultsUpdating {
-	
+// MARK: Search
+
+extension TeamSearchViewController: UISearchResultsUpdating {
 	func updateSearchResults(for searchController: UISearchController) {
 		guard let text = searchController.searchBar.text else { return }
-		interactor?.searchLeagues(request: .init(text: text))
+		interactor?.searchLeagues(request: .init(searchText: text))
 	}
-	
 }
-

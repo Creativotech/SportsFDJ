@@ -12,14 +12,10 @@ struct Leagues: Codable {
 }
 
 struct League: Codable {
-	let idLeague: String
 	let strLeague: String
 	let strSport: String
 	
-	var teams: [Team] = []
-	
 	enum CodingKeys: String, CodingKey {
-		case idLeague = "idLeague"
 		case strLeague = "strLeague"
 		case strSport = "strSport"
 	}

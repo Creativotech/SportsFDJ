@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum teamSearchModel
+enum TeamSearchModel
 {
 	// MARK: Use cases
 	
